@@ -6,46 +6,43 @@ using System.Threading.Tasks;
 class Program
 {
     // Importing the functions from the C DLL
-    [DllImport("xframes.dll", CallingConvention = CallingConvention.Cdecl)]
+    [DllImport("xframesshared.dll", CallingConvention = CallingConvention.Cdecl)]
     public static extern void resizeWindow(int width, int height);
 
-    [DllImport("xframes.dll", CallingConvention = CallingConvention.Cdecl)]
+    [DllImport("xframesshared.dll", CallingConvention = CallingConvention.Cdecl)]
     public static extern void setElement(string elementJson);
 
-    [DllImport("xframes.dll", CallingConvention = CallingConvention.Cdecl)]
+    [DllImport("xframesshared.dll", CallingConvention = CallingConvention.Cdecl)]
     public static extern void patchElement(int id, string elementJson);
 
-    [DllImport("xframes.dll", CallingConvention = CallingConvention.Cdecl)]
+    [DllImport("xframesshared.dll", CallingConvention = CallingConvention.Cdecl)]
     public static extern void elementInternalOp(int id, string elementJson);
 
-    [DllImport("xframes.dll", CallingConvention = CallingConvention.Cdecl)]
+    [DllImport("xframesshared.dll", CallingConvention = CallingConvention.Cdecl)]
     public static extern void setChildren(int id, string childrenIds);
 
-    [DllImport("xframes.dll", CallingConvention = CallingConvention.Cdecl)]
+    [DllImport("xframesshared.dll", CallingConvention = CallingConvention.Cdecl)]
     public static extern void appendChild(int parentId, int childId);
 
-    [DllImport("xframes.dll", CallingConvention = CallingConvention.Cdecl)]
+    [DllImport("xframesshared.dll", CallingConvention = CallingConvention.Cdecl)]
     public static extern IntPtr getChildren(int id);
 
-    [DllImport("xframes.dll", CallingConvention = CallingConvention.Cdecl)]
+    [DllImport("xframesshared.dll", CallingConvention = CallingConvention.Cdecl)]
     public static extern void appendTextToClippedMultiLineTextRenderer(int id, string data);
 
-    [DllImport("xframes.dll", CallingConvention = CallingConvention.Cdecl)]
+    [DllImport("xframesshared.dll", CallingConvention = CallingConvention.Cdecl)]
     public static extern IntPtr getStyle();
 
-    [DllImport("xframes.dll", CallingConvention = CallingConvention.Cdecl)]
+    [DllImport("xframesshared.dll", CallingConvention = CallingConvention.Cdecl)]
     public static extern void patchStyle(string styleDef);
 
-    [DllImport("xframes.dll", CallingConvention = CallingConvention.Cdecl)]
+    [DllImport("xframesshared.dll", CallingConvention = CallingConvention.Cdecl)]
     public static extern void setDebug(bool debug);
 
-    [DllImport("xframes.dll", CallingConvention = CallingConvention.Cdecl)]
+    [DllImport("xframesshared.dll", CallingConvention = CallingConvention.Cdecl)]
     public static extern void showDebugWindow();
 
-    [DllImport("xframes.dll", CallingConvention = CallingConvention.Cdecl)]
-    public static extern int run();
-
-    [DllImport("xframes.dll", CallingConvention = CallingConvention.Cdecl)]
+    [DllImport("xframesshared.dll", CallingConvention = CallingConvention.Cdecl)]
     public static extern void init(
         string assetsBasePath,
         string rawFontDefinitions,
@@ -93,9 +90,6 @@ class Program
         OnInitCb onInit = () => { Console.WriteLine("Initialization callback called!"); };
         init("./assets", "{\"font\": \"Arial\"}", "{\"style\": \"default\"}", onInit, null, null, null, null, null, null);
 
-        // Call other functions as needed
-        run();
-
         // Start the background task that will keep the process running
         await KeepProcessRunning();
 
@@ -110,7 +104,7 @@ class Program
         while (flag)
         {
             // Simulate some periodic work
-            Console.WriteLine("Process is running...");
+            //Console.WriteLine("Process is running...");
 
             // Wait for 1 second without blocking the thread
             await Task.Delay(1000);  // Delay for 1000ms (1 second)
