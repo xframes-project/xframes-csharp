@@ -131,12 +131,12 @@ class Program
 
     // Define the delegates for the callback functions
     public delegate void OnInitCb();
-    public delegate void OnTextChangedCb(string text);
-    public delegate void OnComboChangedCb(int index);
-    public delegate void OnNumericValueChangedCb(float value);
-    public delegate void OnBooleanValueChangedCb(bool value);
-    public delegate void OnMultipleNumericValuesChangedCb(float[] values);
-    public delegate void OnClickCb(int x, int y);
+    public delegate void OnTextChangedCb(int id, string value);
+    public delegate void OnComboChangedCb(int id, int index);
+    public delegate void OnNumericValueChangedCb(int id,float value);
+    public delegate void OnBooleanValueChangedCb(int id, bool value);
+    public delegate void OnMultipleNumericValuesChangedCb(int id, float[] values);
+    public delegate void OnClickCb(int id);
 
     public class FontDef
     {
@@ -229,12 +229,10 @@ class Program
             { ((int) ImGuiCol.ModalWindowDimBg), new List<object> { theme2Colors["darkerGrey"], 1 } }
         });
 
-
         string theme2Json = JsonConvert.SerializeObject(theme2);
 
         Console.WriteLine("Program started.");
 
-        // Example for the callback delegate setup
         OnInitCb onInit = () => { 
             Console.WriteLine("Initialization callback called!");
 
@@ -257,9 +255,16 @@ class Program
             setChildren(0, JsonConvert.SerializeObject(new List<int> { 1 }));
         };
 
-        Console.WriteLine(theme2Json);
+        OnTextChangedCb onTextChanged = (int id, string value) => {};
+        OnComboChangedCb onComboChanged = (int id, int index) => {};
+        OnNumericValueChangedCb onNumericValueChanged = (int id, float value) => {};
+        OnBooleanValueChangedCb onBooleanValueChanged = (int id, bool value) => {};
+        OnMultipleNumericValuesChangedCb onMultipleNumericValuesChanged = (int id, float[] values) => {};
+        OnClickCb onClick = (int id) => {};
 
-        init("./assets", fontDefsJson, theme2Json, onInit, null, null, null, null, null, null);
+        //Console.WriteLine(theme2Json);
+
+        init("./assets", fontDefsJson, theme2Json, onInit, onTextChanged, onComboChanged, onNumericValueChanged, onBooleanValueChanged, onMultipleNumericValuesChanged, onClick);
 
         // Start the background task that will keep the process running
         await KeepProcessRunning();
