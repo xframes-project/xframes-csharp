@@ -133,7 +133,7 @@ class Program
     public delegate void OnInitCb();
     public delegate void OnTextChangedCb(int id, string value);
     public delegate void OnComboChangedCb(int id, int index);
-    public delegate void OnNumericValueChangedCb(int id,float value);
+    public delegate void OnNumericValueChangedCb(int id, float value);
     public delegate void OnBooleanValueChangedCb(int id, bool value);
     public delegate void OnMultipleNumericValuesChangedCb(int id, float[] values);
     public delegate void OnClickCb(int id);
@@ -233,7 +233,7 @@ class Program
 
         Console.WriteLine("Program started.");
 
-        OnInitCb onInit = () => { 
+        OnInitCb onInit = () => {
             Console.WriteLine("Initialization callback called!");
 
             var rootNode = new Dictionary<string, object>
@@ -255,12 +255,12 @@ class Program
             setChildren(0, JsonConvert.SerializeObject(new List<int> { 1 }));
         };
 
-        OnTextChangedCb onTextChanged = (int id, string value) => {};
-        OnComboChangedCb onComboChanged = (int id, int index) => {};
-        OnNumericValueChangedCb onNumericValueChanged = (int id, float value) => {};
-        OnBooleanValueChangedCb onBooleanValueChanged = (int id, bool value) => {};
-        OnMultipleNumericValuesChangedCb onMultipleNumericValuesChanged = (int id, float[] values) => {};
-        OnClickCb onClick = (int id) => {};
+        OnTextChangedCb onTextChanged = (int id, string value) => { };
+        OnComboChangedCb onComboChanged = (int id, int index) => { };
+        OnNumericValueChangedCb onNumericValueChanged = (int id, float value) => { };
+        OnBooleanValueChangedCb onBooleanValueChanged = (int id, bool value) => { };
+        OnMultipleNumericValuesChangedCb onMultipleNumericValuesChanged = (int id, float[] values) => { };
+        OnClickCb onClick = (int id) => { };
 
         //Console.WriteLine(theme2Json);
 
