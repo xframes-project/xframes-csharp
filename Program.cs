@@ -6,6 +6,7 @@ using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 
 
+
 public enum ImGuiCol
 {
     Text = 0,
@@ -78,6 +79,13 @@ public struct Theme2
 
 class Program
 {
+    public static float[] MarshalFloatArray(IntPtr ptr, int length)
+    {
+        float[] array = new float[length];
+        Marshal.Copy(ptr, array, 0, length);
+        return array;
+    }
+
     // Importing the functions from the C DLL
     [DllImport("xframesshared.dll", CallingConvention = CallingConvention.Cdecl)]
     public static extern void resizeWindow(int width, int height);
@@ -135,7 +143,7 @@ class Program
     public delegate void OnComboChangedCb(int id, int index);
     public delegate void OnNumericValueChangedCb(int id, float value);
     public delegate void OnBooleanValueChangedCb(int id, bool value);
-    public delegate void OnMultipleNumericValuesChangedCb(int id, float[] values);
+    public delegate void OnMultipleNumericValuesChangedCb(int id, IntPtr values, int numValues);
     public delegate void OnClickCb(int id);
 
     public class FontDef
@@ -259,10 +267,10 @@ class Program
         OnComboChangedCb onComboChanged = (int id, int index) => { };
         OnNumericValueChangedCb onNumericValueChanged = (int id, float value) => { };
         OnBooleanValueChangedCb onBooleanValueChanged = (int id, bool value) => { };
-        OnMultipleNumericValuesChangedCb onMultipleNumericValuesChanged = (int id, float[] values) => { };
+        OnMultipleNumericValuesChangedCb onMultipleNumericValuesChanged = (int id, IntPtr rawValues, int numValues) => {
+            float[] values = MarshalFloatArray(rawValues, numValues);
+        };
         OnClickCb onClick = (int id) => { };
-
-        //Console.WriteLine(theme2Json);
 
         init("./assets", fontDefsJson, theme2Json, onInit, onTextChanged, onComboChanged, onNumericValueChanged, onBooleanValueChanged, onMultipleNumericValuesChanged, onClick);
 
