@@ -19,79 +19,8 @@ public struct Theme2
 }
 
 
-
 class Program
 {
-    public static float[] MarshalFloatArray(IntPtr ptr, int length)
-    {
-        float[] array = new float[length];
-        Marshal.Copy(ptr, array, 0, length);
-        return array;
-    }
-
-    // Importing the functions from the C DLL
-    [DllImport("xframesshared.dll", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void resizeWindow(int width, int height);
-
-    [DllImport("xframesshared.dll", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void setElement(string elementJson);
-
-    [DllImport("xframesshared.dll", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void patchElement(int id, string elementJson);
-
-    [DllImport("xframesshared.dll", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void elementInternalOp(int id, string elementJson);
-
-    [DllImport("xframesshared.dll", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void setChildren(int id, string childrenIds);
-
-    [DllImport("xframesshared.dll", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void appendChild(int parentId, int childId);
-
-    [DllImport("xframesshared.dll", CallingConvention = CallingConvention.Cdecl)]
-    public static extern IntPtr getChildren(int id);
-
-    [DllImport("xframesshared.dll", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void appendTextToClippedMultiLineTextRenderer(int id, string data);
-
-    [DllImport("xframesshared.dll", CallingConvention = CallingConvention.Cdecl)]
-    public static extern IntPtr getStyle();
-
-    [DllImport("xframesshared.dll", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void patchStyle(string styleDef);
-
-    [DllImport("xframesshared.dll", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void setDebug(bool debug);
-
-    [DllImport("xframesshared.dll", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void showDebugWindow();
-
-    [DllImport("xframesshared.dll", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void init(
-        string assetsBasePath,
-        string rawFontDefinitions,
-        string rawStyleOverrideDefinitions,
-        OnInitCb onInit,
-        OnTextChangedCb onTextChanged,
-        OnComboChangedCb onComboChanged,
-        OnNumericValueChangedCb onNumericValueChanged,
-        OnBooleanValueChangedCb onBooleanValueChanged,
-        OnMultipleNumericValuesChangedCb onMultipleNumericValuesChanged,
-        OnClickCb onClick
-    );
-
-    // Define the delegates for the callback functions
-    public delegate void OnInitCb();
-    public delegate void OnTextChangedCb(int id, string value);
-    public delegate void OnComboChangedCb(int id, int index);
-    public delegate void OnNumericValueChangedCb(int id, float value);
-    public delegate void OnBooleanValueChangedCb(int id, bool value);
-    public delegate void OnMultipleNumericValuesChangedCb(int id, IntPtr values, int numValues);
-    public delegate void OnClickCb(int id);
-
-    
-
-    // Example usage
     static async Task Main(string[] args)
     {
         var fontDefs = new
@@ -100,7 +29,7 @@ class Program
             {
                 new { name = "roboto-regular", sizes = new[] { 16, 18, 20, 24, 28, 32, 36, 48 } }
             }
-            .SelectMany(font => font.sizes.Select(size => new FontDef { name = font.name, size = size }))
+            .SelectMany(font => font.sizes.Select(size => new FontDef(font.name, size)))
             .ToList()
         };
 
@@ -180,7 +109,7 @@ class Program
 
         Console.WriteLine("Program started.");
 
-        OnInitCb onInit = () => {
+        XFrames.OnInitCb onInit = () => {
             Console.WriteLine("Initialization callback called!");
 
             var rootNode = new Dictionary<string, object>
@@ -197,21 +126,21 @@ class Program
                 { "text", "Hello, world!" }
             };
 
-            setElement(JsonConvert.SerializeObject(rootNode));
-            setElement(JsonConvert.SerializeObject(textNode));
-            setChildren(0, JsonConvert.SerializeObject(new List<int> { 1 }));
+            XFrames.setElement(JsonConvert.SerializeObject(rootNode));
+            XFrames.setElement(JsonConvert.SerializeObject(textNode));
+            XFrames.setChildren(0, JsonConvert.SerializeObject(new List<int> { 1 }));
         };
 
-        OnTextChangedCb onTextChanged = (int id, string value) => { };
-        OnComboChangedCb onComboChanged = (int id, int index) => { };
-        OnNumericValueChangedCb onNumericValueChanged = (int id, float value) => { };
-        OnBooleanValueChangedCb onBooleanValueChanged = (int id, bool value) => { };
-        OnMultipleNumericValuesChangedCb onMultipleNumericValuesChanged = (int id, IntPtr rawValues, int numValues) => {
-            float[] values = MarshalFloatArray(rawValues, numValues);
+        XFrames.OnTextChangedCb onTextChanged = (int id, string value) => { };
+        XFrames.OnComboChangedCb onComboChanged = (int id, int index) => { };
+        XFrames.OnNumericValueChangedCb onNumericValueChanged = (int id, float value) => { };
+        XFrames.OnBooleanValueChangedCb onBooleanValueChanged = (int id, bool value) => { };
+        XFrames.OnMultipleNumericValuesChangedCb onMultipleNumericValuesChanged = (int id, IntPtr rawValues, int numValues) => {
+            float[] values = XFrames.MarshalFloatArray(rawValues, numValues);
         };
-        OnClickCb onClick = (int id) => { };
+        XFrames.OnClickCb onClick = (int id) => { };
 
-        init("./assets", fontDefsJson, theme2Json, onInit, onTextChanged, onComboChanged, onNumericValueChanged, onBooleanValueChanged, onMultipleNumericValuesChanged, onClick);
+        XFrames.init("./assets", fontDefsJson, theme2Json, onInit, onTextChanged, onComboChanged, onNumericValueChanged, onBooleanValueChanged, onMultipleNumericValuesChanged, onClick);
 
         // Start the background task that will keep the process running
         await KeepProcessRunning();

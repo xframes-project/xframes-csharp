@@ -1,4 +1,5 @@
-﻿using System.Reactive.Subjects;
+﻿using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using DynamicData;
 
 
@@ -45,46 +46,81 @@ public static class AppStateManager
     }
 }
 
-// Assuming WidgetStyle, Button, and Text exist
 public class App : BaseComponent
 {
     private IDisposable _appStateSubscription;
 
+    public WidgetStyle TextStyle { get; }
+    public WidgetStyle ButtonStyle { get; }
+
     public App()
     {
+        TextStyle = new WidgetStyle
+        {
+            style = new WidgetStyleDef
+            {
+                styleRules = new StyleRules
+                {
+                    font = new FontDef("roboto-regular", 32)
+                }
+            }
+        };
+
+        ButtonStyle = new WidgetStyle
+        {
+            style = new WidgetStyleDef
+            {
+                styleRules = new StyleRules
+                {
+                    font = new FontDef("roboto-regular", 32)
+                },
+                layout = new YogaStyle
+                {
+                    width = "50%",
+                    padding = new Dictionary<Edge, float> { { Edge.Vertical, 10 } },
+                    margin = new Dictionary<Edge, float> { { Edge.Left, 140 } }
+                }
+            }
+        };
+
         _appStateSubscription = AppStateManager.SampleAppState.Subscribe(latestAppState =>
         {
-            Props.OnNext(new
+            // Ensure that we are updating the Props value with the correct dictionary
+            props.OnNext(new Dictionary<string, object>
             {
-                todo_text = latestAppState.TodoText,
-                todo_items = latestAppState.TodoItems
+                { "todoText", latestAppState.TodoText },
+                { "todoItems", latestAppState.TodoItems }
             });
         });
     }
 
-    public override Node Render()
+    public override IRenderable Render()
     {
-        var children = new List<Node>
+        var children = new List<IRenderable>
         {
-            Button("Add todo", AppStateManager.OnClick, buttonStyle)
+            WidgetNodeFactory.Button("Add todo", AppStateManager.OnClick, ButtonStyle)
         };
 
-        foreach (var todoItem in Props.Value.todo_items)
+        // Safe access to "todoItems" from Props.Value
+        if (props.Value.TryGetValue("todoItems", out var todoItemsObj) && todoItemsObj is List<TodoItem> todoItems)
         {
-            string text = $"{todoItem.Text} ({(todoItem.Done ? "done" : "to do")}).";
-            children.Add(UnformattedText(text, textStyle));
+            foreach (var todoItem in todoItems)
+            {
+                string text = $"{todoItem.Text} ({(todoItem.Done ? "done" : "to do")}).";
+                children.Add(WidgetNodeFactory.UnformattedText(text, TextStyle));
+            }
         }
 
-        return Node(children);
+        return WidgetNodeFactory.Node(children);
     }
 
-    public override void Dispose()
-    {
-        _appStateSubscription.Dispose();
-    }
+    //public override void Dispose()
+    //{
+    //    _appStateSubscription.Dispose();
+    //}
 }
 
 public class Root : BaseComponent
 {
-    public override Node Render() => RootNode(new List<Node> { new App() });
+    public override IRenderable Render() => WidgetNodeFactory.RootNode(new List<IRenderable> { new App() });
 }

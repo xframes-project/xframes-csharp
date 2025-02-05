@@ -168,6 +168,12 @@ public class FontDef
 {
     public string name { get; set; }
     public int size { get; set; }
+
+    public FontDef(string name, int size)
+    {
+        this.name = name;
+        this.size = size;
+    }
 }
 
 public class ImVec2
@@ -428,7 +434,6 @@ public class StyleRules
     public FontDef? font { get; set; }
     public Dictionary<ImGuiCol, object>? colors { get; set; }
     public Dictionary<ImGuiStyleVar, object>? vars { get; set; }
-
 }
 
 public class BorderStyle
@@ -477,13 +482,19 @@ public class BaseDrawStyle
     public BorderStyle? borderLeft { get; set; }
     public float? rounding { get; set; }
     public List<RoundCorners>? roundCorners { get; set; }
-
 }
 
 public class NodeStyleDef
 {
     public YogaStyle? layout { get; set; }
     public BaseDrawStyle? baseDraw { get; set; }
+
+    public NodeStyleDef(YogaStyle? layout = null,
+                       BaseDrawStyle? baseDraw = null)
+    {
+        this.layout = layout;
+        this.baseDraw = baseDraw;
+    }
 
     public Dictionary<string, object> ToDictionary()
     {
@@ -523,6 +534,15 @@ public class WidgetStyleDef
     public StyleRules? styleRules{ get; set; }
     public YogaStyle? layout { get; set; }
     public BaseDrawStyle? baseDraw { get; set; }
+
+    public WidgetStyleDef(StyleRules? styleRules = null,
+                       YogaStyle? layout = null,
+                       BaseDrawStyle? baseDraw = null)
+    {
+        this.styleRules = styleRules;
+        this.layout = layout;
+        this.baseDraw = baseDraw;
+    }
 
     public Dictionary<string, object> ToDictionary()
     {

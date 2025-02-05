@@ -4,29 +4,37 @@ using System.Reactive.Subjects;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-public abstract class BaseComponent
+public interface IRenderable
+{}
+
+public abstract class BaseComponent : IRenderable
 {
-    public BehaviorSubject<Dictionary<string, object>> Props { get; }
+    public BehaviorSubject<Dictionary<string, object>> props { get; }
+
+    protected BaseComponent()
+    {
+        this.props = new BehaviorSubject<Dictionary<string, object>>(new Dictionary<string, object>{});
+    }
 
     protected BaseComponent(Dictionary<string, object> props)
     {
-        Props = new BehaviorSubject<Dictionary<string, object>>(props);
+        this.props = new BehaviorSubject<Dictionary<string, object>>(props);
     }
 
-    public abstract object Render();
+    public abstract IRenderable Render();
 }
 
-public class WidgetNode
+public class WidgetNode : IRenderable
 {
     public WidgetTypes type { get; }
     public BehaviorSubject<Dictionary<string, object>> props { get; }
-    public BehaviorSubject<List<object>> children { get; } // "Renderable" approximation
+    public BehaviorSubject<List<IRenderable>> children { get; } // "Renderable" approximation
 
-    public WidgetNode(WidgetTypes widgetType, Dictionary<string, object> props, List<object> children)
+    public WidgetNode(WidgetTypes widgetType, Dictionary<string, object> props, List<IRenderable> children)
     {
         this.type = widgetType;
         this.props = new BehaviorSubject<Dictionary<string, object>>(props);
-        this.children = new BehaviorSubject<List<object>>(children);
+        this.children = new BehaviorSubject<List<IRenderable>>(children);
     }
 }
 
@@ -44,9 +52,9 @@ public class RawChildlessWidgetNodeWithId
     public Dictionary<string, object> props { get; set; }
 }
 
-public static class WidgetFactory
+public static class WidgetNodeFactory
 {
-    public static WidgetNode WidgetNode(WidgetTypes widgetType, Dictionary<string, object> props, List<object> children)
+    public static WidgetNode WidgetNode(WidgetTypes widgetType, Dictionary<string, object> props, List<IRenderable> children)
     {
         return new WidgetNode(widgetType, props, children);
     }
@@ -76,14 +84,14 @@ public static class WidgetFactory
         return props;
     }
 
-    public static WidgetNode RootNode(List<object> children, object? style = null)
+    public static WidgetNode RootNode(List<IRenderable> children, object? style = null)
     {
         var props = InitPropsWithStyle(style);
         props["root"] = true;
         return WidgetNode(WidgetTypes.Node, props, children);
     }
 
-    public static WidgetNode Node(List<object> children, object? style = null)
+    public static WidgetNode Node(List<IRenderable> children, object? style = null)
     {
         var props = InitPropsWithStyle(style);
         props["root"] = false;
@@ -94,7 +102,7 @@ public static class WidgetFactory
     {
         var props = InitPropsWithStyle(style);
         props["text"] = text;
-        return WidgetNode(WidgetTypes.UnformattedText, props, new List<object>());
+        return WidgetNode(WidgetTypes.UnformattedText, props, new List<IRenderable>());
     }
 
     public static WidgetNode Button(string label, Action? onClick = null, object? style = null)
@@ -104,7 +112,7 @@ public static class WidgetFactory
         if (onClick != null)
             props["on_click"] = onClick; // Not serializable, just stored
 
-        return WidgetNode(WidgetTypes.Button, props, new List<object>());
+        return WidgetNode(WidgetTypes.Button, props, new List<IRenderable>());
     }
 }
 
