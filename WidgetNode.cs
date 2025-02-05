@@ -18,60 +18,42 @@ public abstract class BaseComponent
 
 public class WidgetNode
 {
-    public WidgetTypes Type { get; }
-    public BehaviorSubject<Dictionary<string, object>> Props { get; }
-    public BehaviorSubject<List<object>> Children { get; } // "Renderable" approximation
+    public WidgetTypes type { get; }
+    public BehaviorSubject<Dictionary<string, object>> props { get; }
+    public BehaviorSubject<List<object>> children { get; } // "Renderable" approximation
 
-    public WidgetNode(WidgetTypes type, Dictionary<string, object> props, List<object> children)
+    public WidgetNode(WidgetTypes widgetType, Dictionary<string, object> props, List<object> children)
     {
-        Type = type;
-        Props = new BehaviorSubject<Dictionary<string, object>>(props);
-        Children = new BehaviorSubject<List<object>>(children);
+        this.type = widgetType;
+        this.props = new BehaviorSubject<Dictionary<string, object>>(props);
+        this.children = new BehaviorSubject<List<object>>(children);
     }
 }
 
 public class RawChildlessWidgetNodeWithId
 {
-    public int Id { get; }
-    public WidgetTypes Type { get; }
-    public Dictionary<string, object> Props { get; }
-
     public RawChildlessWidgetNodeWithId(int id, WidgetTypes type, Dictionary<string, object> props)
     {
-        Id = id;
-        Type = type;
-        Props = props;
+        this.id = id;
+        this.type = type;
+        this.props = props;
     }
 
-    public Dictionary<string, object> ToSerializableDict()
-    {
-        var output = new Dictionary<string, object>
-        {
-            { "id", Id },
-            { "type", Type }
-        };
-
-        foreach (var kvp in Props)
-        {
-            if (kvp.Value is not Delegate)
-                output[kvp.Key] = kvp.Value;
-        }
-
-        return output;
-    }
-
+    public int id { get; set; }
+    public WidgetTypes type { get; set; }
+    public Dictionary<string, object> props { get; set; }
 }
 
 public static class WidgetFactory
 {
-    public static WidgetNode CreateWidgetNode(WidgetTypes widgetType, Dictionary<string, object> props, List<object> children)
+    public static WidgetNode WidgetNode(WidgetTypes widgetType, Dictionary<string, object> props, List<object> children)
     {
         return new WidgetNode(widgetType, props, children);
     }
 
-    public static RawChildlessWidgetNodeWithId CreateRawChildlessWidgetNodeWithId(int id, WidgetNode node)
+    public static RawChildlessWidgetNodeWithId RawChildlessWidgetNodeWithId(int id, WidgetNode node)
     {
-        return new RawChildlessWidgetNodeWithId(id, node.Type, node.Props.Value);
+        return new RawChildlessWidgetNodeWithId(id, node.type, node.props.Value);
     }
 
     private static Dictionary<string, object> InitPropsWithStyle(object? style)
@@ -98,21 +80,21 @@ public static class WidgetFactory
     {
         var props = InitPropsWithStyle(style);
         props["root"] = true;
-        return CreateWidgetNode(WidgetTypes.Node, props, children);
+        return WidgetNode(WidgetTypes.Node, props, children);
     }
 
     public static WidgetNode Node(List<object> children, object? style = null)
     {
         var props = InitPropsWithStyle(style);
         props["root"] = false;
-        return CreateWidgetNode(WidgetTypes.Node, props, children);
+        return WidgetNode(WidgetTypes.Node, props, children);
     }
 
     public static WidgetNode UnformattedText(string text, object? style = null)
     {
         var props = InitPropsWithStyle(style);
         props["text"] = text;
-        return CreateWidgetNode(WidgetTypes.UnformattedText, props, new List<object>());
+        return WidgetNode(WidgetTypes.UnformattedText, props, new List<object>());
     }
 
     public static WidgetNode Button(string label, Action? onClick = null, object? style = null)
@@ -122,20 +104,8 @@ public static class WidgetFactory
         if (onClick != null)
             props["on_click"] = onClick; // Not serializable, just stored
 
-        return CreateWidgetNode(WidgetTypes.Button, props, new List<object>());
+        return WidgetNode(WidgetTypes.Button, props, new List<object>());
     }
 }
 
-public class RawChildlessWidgetNodeWithIdEncoder : JsonConverter<RawChildlessWidgetNodeWithId>
-{
-    public override RawChildlessWidgetNodeWithId Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-    {
-        throw new NotImplementedException("Deserialization not needed.");
-    }
 
-    public override void Write(Utf8JsonWriter writer, RawChildlessWidgetNodeWithId value, JsonSerializerOptions options)
-    {
-        var dict = value.ToSerializableDict();
-        JsonSerializer.Serialize(writer, dict, options);
-    }
-}
