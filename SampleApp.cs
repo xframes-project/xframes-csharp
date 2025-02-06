@@ -53,33 +53,27 @@ public class App : BaseComponent
 
     public App()
     {
-        TextStyle = new WidgetStyle
-        {
-            style = new WidgetStyleDef
-            {
-                styleRules = new StyleRules
-                {
-                    font = new FontDef("roboto-regular", 32)
-                }
-            }
-        };
+        TextStyle = new WidgetStyle(
+            style: new WidgetStyleDef(
+                styleRules: new StyleRules(
+                    font: new FontDef("roboto-regular", 32)
+                )
+            )
+        );
 
-        ButtonStyle = new WidgetStyle
-        {
-            style = new WidgetStyleDef
-            {
-                styleRules = new StyleRules
-                {
-                    font = new FontDef("roboto-regular", 32)
-                },
-                layout = new YogaStyle
-                {
-                    width = "50%",
-                    padding = new Dictionary<Edge, float> { { Edge.Vertical, 10 } },
-                    margin = new Dictionary<Edge, float> { { Edge.Left, 140 } }
-                }
-            }
-        };
+        ButtonStyle = new WidgetStyle(
+            style: new WidgetStyleDef(
+                styleRules: new StyleRules(
+                    font: new FontDef("roboto-regular", 32)
+                ),
+                layout: new YogaStyle(
+                    width: "50%",
+                    padding: new Dictionary<Edge, float> { { Edge.Vertical, 10 } },
+                    margin: new Dictionary<Edge, float> { { Edge.Left, 140 } }
+                )
+            )
+        );
+
 
         _appStateSubscription = AppStateManager.SampleAppState.Subscribe(latestAppState =>
         {

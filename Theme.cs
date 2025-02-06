@@ -1,7 +1,7 @@
 ﻿
 
 using System.Runtime.Serialization;
-using DynamicData;
+using Newtonsoft.Json;
 
 public enum ImGuiCol
 {
@@ -164,23 +164,10 @@ class Types
     }
 }
 
-public class FontDef
-{
-    public string name { get; set; }
-    public int size { get; set; }
+public record FontDef(string name, int size);
 
-    public FontDef(string name, int size)
-    {
-        this.name = name;
-        this.size = size;
-    }
-}
+public record ImVec2(float x, float y);
 
-public class ImVec2
-{
-    public float x { get; set; }
-    public float y { get; set; }
-}
 
 public class StyleColValue
 {
@@ -428,75 +415,66 @@ public enum RoundCorners
     BottomRight
 }
 
-public class StyleRules
+public record StyleRules(
+    [JsonProperty(NullValueHandling = NullValueHandling.Ignore)] Align? align = null,
+    [JsonProperty(NullValueHandling = NullValueHandling.Ignore)] FontDef? font = null,
+    [JsonProperty(NullValueHandling = NullValueHandling.Ignore)] Dictionary<ImGuiCol, object>? colors = null,
+    [JsonProperty(NullValueHandling = NullValueHandling.Ignore)] Dictionary<ImGuiStyleVar, object>? vars = null
+);
+
+public record BorderStyle(
+    object color, 
+    [JsonProperty(NullValueHandling = NullValueHandling.Ignore)] float? thickness = null
+);
+
+
+public record YogaStyle(
+    [JsonProperty(NullValueHandling = NullValueHandling.Ignore)] Direction? direction = null,
+    [JsonProperty(NullValueHandling = NullValueHandling.Ignore)] FlexDirection? flexDirection = null,
+    [JsonProperty(NullValueHandling = NullValueHandling.Ignore)] JustifyContent? justifyContent = null,
+    [JsonProperty(NullValueHandling = NullValueHandling.Ignore)] AlignContent? alignContent = null,
+    [JsonProperty(NullValueHandling = NullValueHandling.Ignore)] AlignItems? alignItems = null,
+    [JsonProperty(NullValueHandling = NullValueHandling.Ignore)] AlignSelf? alignSelf = null,
+    [JsonProperty(NullValueHandling = NullValueHandling.Ignore)] PositionType? positionType = null,
+    [JsonProperty(NullValueHandling = NullValueHandling.Ignore)] FlexWrap? flexWrap = null,
+    [JsonProperty(NullValueHandling = NullValueHandling.Ignore)] Overflow? overflow = null,
+    [JsonProperty(NullValueHandling = NullValueHandling.Ignore)] Display? display = null,
+    [JsonProperty(NullValueHandling = NullValueHandling.Ignore)] float? flex = null,
+    [JsonProperty(NullValueHandling = NullValueHandling.Ignore)] float? flexGrow = null,
+    [JsonProperty(NullValueHandling = NullValueHandling.Ignore)] float? flexShrink = null,
+    [JsonProperty(NullValueHandling = NullValueHandling.Ignore)] float? flexBasis = null,
+    [JsonProperty(NullValueHandling = NullValueHandling.Ignore)] float? flexBasisPercent = null,
+    [JsonProperty(NullValueHandling = NullValueHandling.Ignore)] Dictionary<Edge, float>? position = null,
+    [JsonProperty(NullValueHandling = NullValueHandling.Ignore)] Dictionary<Edge, float>? margin = null,
+    [JsonProperty(NullValueHandling = NullValueHandling.Ignore)] Dictionary<Edge, float>? padding = null,
+    [JsonProperty(NullValueHandling = NullValueHandling.Ignore)] Dictionary<Gutter, float>? gap = null,
+    [JsonProperty(NullValueHandling = NullValueHandling.Ignore)] float? aspectRatio = null,
+    [JsonProperty(NullValueHandling = NullValueHandling.Ignore)] object? width = null,
+    [JsonProperty(NullValueHandling = NullValueHandling.Ignore)] object? minWidth = null,
+    [JsonProperty(NullValueHandling = NullValueHandling.Ignore)] object? maxWidth = null,
+    [JsonProperty(NullValueHandling = NullValueHandling.Ignore)] object? height = null,
+    [JsonProperty(NullValueHandling = NullValueHandling.Ignore)] object? minHeight = null,
+    [JsonProperty(NullValueHandling = NullValueHandling.Ignore)] object? maxHeight = null
+);
+
+public record BaseDrawStyle(
+    [JsonProperty(NullValueHandling = NullValueHandling.Ignore)] StyleColValue? backgroundColor = null,
+    [JsonProperty(NullValueHandling = NullValueHandling.Ignore)] BorderStyle? border = null,
+    [JsonProperty(NullValueHandling = NullValueHandling.Ignore)] BorderStyle? borderTop = null,
+    [JsonProperty(NullValueHandling = NullValueHandling.Ignore)] BorderStyle? borderRight = null,
+    [JsonProperty(NullValueHandling = NullValueHandling.Ignore)] BorderStyle? borderBottom = null,
+    [JsonProperty(NullValueHandling = NullValueHandling.Ignore)] BorderStyle? borderLeft = null,
+    [JsonProperty(NullValueHandling = NullValueHandling.Ignore)] float? rounding = null,
+    [JsonProperty(NullValueHandling = NullValueHandling.Ignore)] List<RoundCorners>? roundCorners = null
+);
+
+
+
+public record NodeStyleDef(
+    YogaStyle? layout = null,
+    BaseDrawStyle? baseDraw = null
+)
 {
-    public Align? align { get; set; }
-    public FontDef? font { get; set; }
-    public Dictionary<ImGuiCol, object>? colors { get; set; }
-    public Dictionary<ImGuiStyleVar, object>? vars { get; set; }
-}
-
-public class BorderStyle
-{
-    public object color { get; set; }
-    public float? thickness { get; set; }
-}
-
-public class YogaStyle
-{
-    public Direction? direction { get; set; }
-    public FlexDirection? flexDirection { get; set; }
-    public JustifyContent? justifyContent { get; set; }
-    public AlignContent? alignContent { get; set; }
-    public AlignItems? alignItems { get; set; }
-    public AlignSelf? alignSelf { get; set; }
-    public PositionType? positionType { get; set; }
-    public FlexWrap? flexWrap { get; set; }
-    public Overflow? overflow { get; set; }
-    public Display? display { get; set; }
-    public float? flex { get; set; }
-    public float? flexGrow { get; set; }
-    public float? flexShrink { get; set; }
-    public float? flexBasis { get; set; }
-    public float? flexBasisPercent { get; set; }
-    public Dictionary<Edge, float>? position { get; set; }
-    public Dictionary<Edge, float>? margin { get; set; }
-    public Dictionary<Edge, float>? padding { get; set; }
-    public Dictionary<Gutter, float>? gap { get; set; }
-    public float? aspectRatio { get; set; }
-    public object? width { get; set; }
-    public object? minWidth { get; set; }
-    public object? maxWidth { get; set; }
-    public object? height { get; set; }
-    public object? minHeight { get; set; }
-    public object? maxHeight { get; set; }
-}
-
-public class BaseDrawStyle
-{
-    public StyleColValue? backgroundColor { get; set; }
-    public BorderStyle? border { get; set; }
-    public BorderStyle? borderTop { get; set; }
-    public BorderStyle? borderRight { get; set; }
-    public BorderStyle? borderBottom { get; set; }
-    public BorderStyle? borderLeft { get; set; }
-    public float? rounding { get; set; }
-    public List<RoundCorners>? roundCorners { get; set; }
-}
-
-
-public class NodeStyleDef
-{
-    public YogaStyle? layout { get; set; }
-    public BaseDrawStyle? baseDraw { get; set; }
-
-    public NodeStyleDef(YogaStyle? layout = null,
-                       BaseDrawStyle? baseDraw = null)
-    {
-        this.layout = layout;
-        this.baseDraw = baseDraw;
-    }
-
     public Dictionary<string, object> ToDictionary()
     {
         var outDict = new Dictionary<string, object>();
@@ -530,21 +508,12 @@ public class NodeStyleDef
 }
 
 
-public class WidgetStyleDef
+public record WidgetStyleDef(
+    StyleRules? styleRules = null,
+    YogaStyle? layout = null,
+    BaseDrawStyle? baseDraw = null
+)
 {
-    public StyleRules? styleRules{ get; set; }
-    public YogaStyle? layout { get; set; }
-    public BaseDrawStyle? baseDraw { get; set; }
-
-    public WidgetStyleDef(StyleRules? styleRules = null,
-                       YogaStyle? layout = null,
-                       BaseDrawStyle? baseDraw = null)
-    {
-        this.styleRules = styleRules;
-        this.layout = layout;
-        this.baseDraw = baseDraw;
-    }
-
     public Dictionary<string, object> ToDictionary()
     {
         var outDict = new Dictionary<string, object>();
@@ -589,22 +558,17 @@ public class WidgetStyleDef
     }
 }
 
-public class NodeStyle
-{
-    public NodeStyleDef? style { get; set; }
 
-    public NodeStyleDef? hoverStyle { get; set; }
+public record NodeStyle(
+    NodeStyleDef? style = null,
+    NodeStyleDef? hoverStyle = null,
+    NodeStyleDef? activeStyle = null,
+    NodeStyleDef? disabledStyle = null
+);
 
-    public NodeStyleDef? activeStyle { get; set; }
-
-    public NodeStyleDef? disabledStyle { get; set; }
-}
-
-
-public class WidgetStyle
-{
-    public WidgetStyleDef? style { get; set; }
-    public WidgetStyleDef? hoverStyle { get; set; }
-    public WidgetStyleDef? activeStyle { get; set; }
-    public WidgetStyleDef? disabledStyle { get; set; }
-}
+public record WidgetStyle(
+    WidgetStyleDef? style = null,
+    WidgetStyleDef? hoverStyle = null,
+    WidgetStyleDef? activeStyle = null,
+    WidgetStyleDef? disabledStyle = null
+);
