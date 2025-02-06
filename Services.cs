@@ -91,22 +91,31 @@ public class WidgetRegistrationService
 
     public void CreateWidget(RawChildlessWidgetNodeWithId widget)
     {
-        // Filter out functions/delegates from props
         var filteredProps = widget.props
             .Where(kv => kv.Value == null || !typeof(Delegate).IsAssignableFrom(kv.Value.GetType()))
             .ToDictionary(kv => kv.Key, kv => kv.Value);
 
-        // Create a new dictionary to hold the flattened object
         var widgetData = new Dictionary<string, object>
         {
             { "id", widget.id },
             { "type", widget.type }
         };
 
-        // Add the filtered props to the widgetData dictionary
         foreach (var kv in filteredProps)
         {
-            widgetData[kv.Key] = kv.Value;
+            if (kv.Key == "style" || kv.Key == "activeStyle" || kv.Key == "hoverStyle" || kv.Key == "disabledStyle")
+            {
+                if (kv.Value is NodeStyleDef nodeStyleDef)
+                {
+                    widgetData[kv.Key] = nodeStyleDef.ToDictionary();
+                }
+                else if (kv.Value is WidgetStyleDef widgetStyleDef)
+                {
+                    widgetData[kv.Key] = widgetStyleDef.ToDictionary();
+                }
+            } else { 
+                widgetData[kv.Key] = kv.Value;
+            }
         }
 
         var settings = new JsonSerializerSettings
