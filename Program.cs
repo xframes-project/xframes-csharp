@@ -1,6 +1,5 @@
 ﻿using Newtonsoft.Json;
 
-
 public struct Theme2
 {
     public Dictionary<int, List<object>> colors { get; set; }

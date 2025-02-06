@@ -43,7 +43,17 @@ public class ShadowNodeTraversalHelper
 
     public bool ArePropsEqual(Dictionary<string, object> props1, Dictionary<string, object> props2)
     {
-        return props1.SequenceEqual(props2);
+        if (props1.Count != props2.Count)
+        {
+            return false;
+        }
+
+        foreach (var kvp in props1)
+        {
+            if (!props2.TryGetValue(kvp.Key, out var value) || !Equals(kvp.Value, value))
+                return false;
+        }
+        return true;
     }
 
     public void SubscribeToPropsHelper(ShadowNode shadowNode)
@@ -64,13 +74,9 @@ public class ShadowNodeTraversalHelper
     {
         if (widget.type == WidgetTypes.Button)
         {
-            if (widget.props.TryGetValue("on_click", out var onClick) && onClick != null)
+            if (widget.props.TryGetValue("on_click", out var onClick) && onClick is Action action)
             {
-                _widgetRegistrationService.RegisterOnClick(widget.id, (Action)onClick);
-            }
-            else
-            {
-                Console.WriteLine("Button widget must have on_click prop");
+                _widgetRegistrationService.RegisterOnClick(widget.id, action);
             }
         }
     }

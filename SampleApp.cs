@@ -44,9 +44,10 @@ public static class AppStateManager
     }
 }
 
-public class App : BaseComponent
+public class App : BaseComponent, IDisposable
 {
     private IDisposable _appStateSubscription;
+    private bool _disposed;
 
     public WidgetStyle TextStyle { get; }
     public WidgetStyle ButtonStyle { get; }
@@ -106,10 +107,13 @@ public class App : BaseComponent
         return WidgetNodeFactory.Node(children);
     }
 
-    //public override void Dispose()
-    //{
-    //    _appStateSubscription.Dispose();
-    //}
+    public override void Dispose()
+    {
+        _appStateSubscription?.Dispose();
+        GC.SuppressFinalize(this);
+
+        base.Dispose();
+    }
 }
 
 public class Root : BaseComponent

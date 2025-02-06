@@ -1,6 +1,4 @@
-﻿
-
-using System.Runtime.Serialization;
+﻿using System.Runtime.Serialization;
 using Newtonsoft.Json;
 
 public enum ImGuiCol
@@ -479,29 +477,8 @@ public record NodeStyleDef(
     {
         var outDict = new Dictionary<string, object>();
 
-        if (layout != null)
-        {
-            foreach (var prop in layout.GetType().GetProperties())
-            {
-                var value = prop.GetValue(layout);
-                if (value != null)
-                {
-                    outDict[prop.Name] = value;
-                }
-            }
-        }
-
-        if (baseDraw != null)
-        {
-            foreach (var prop in baseDraw.GetType().GetProperties())
-            {
-                var value = prop.GetValue(baseDraw);
-                if (value != null)
-                {
-                    outDict[prop.Name] = value;
-                }
-            }
-        }
+        DictionaryHelper.AddPropertiesToDictionary(layout, outDict);
+        DictionaryHelper.AddPropertiesToDictionary(baseDraw, outDict);
 
         return outDict;
     }
@@ -518,41 +495,9 @@ public record WidgetStyleDef(
     {
         var outDict = new Dictionary<string, object>();
 
-        if (styleRules != null)
-        {
-            foreach (var prop in styleRules.GetType().GetProperties())
-            {
-                var value = prop.GetValue(styleRules);
-                if (value != null)
-                {
-                    outDict[prop.Name] = value;
-                }
-            }
-        }
-
-        if (layout != null)
-        {
-            foreach (var prop in layout.GetType().GetProperties())
-            {
-                var value = prop.GetValue(layout);
-                if (value != null)
-                {
-                    outDict[prop.Name] = value;
-                }
-            }
-        }
-
-        if (baseDraw != null)
-        {
-            foreach (var prop in baseDraw.GetType().GetProperties())
-            {
-                var value = prop.GetValue(baseDraw);
-                if (value != null)
-                {
-                    outDict[prop.Name] = value;
-                }
-            }
-        }
+        DictionaryHelper.AddPropertiesToDictionary(styleRules, outDict);
+        DictionaryHelper.AddPropertiesToDictionary(layout, outDict);
+        DictionaryHelper.AddPropertiesToDictionary(baseDraw, outDict);
 
         return outDict;
     }

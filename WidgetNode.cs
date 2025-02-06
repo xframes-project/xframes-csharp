@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Reactive.Subjects;
-using System.Text.Json;
-using System.Text.Json.Serialization;
+﻿using System.Reactive.Subjects;
 
 public interface IRenderable
 {}
@@ -22,41 +18,31 @@ public abstract class BaseComponent : IRenderable
     }
 
     public abstract IRenderable Render();
-}
 
-public class WidgetNode : IRenderable
-{
-    public WidgetTypes type { get; }
-    public BehaviorSubject<Dictionary<string, object>> props { get; }
-    public BehaviorSubject<List<IRenderable>> children { get; } // "Renderable" approximation
-
-    public WidgetNode(WidgetTypes widgetType, Dictionary<string, object> props, List<IRenderable> children)
+    public virtual void Dispose()
     {
-        this.type = widgetType;
-        this.props = new BehaviorSubject<Dictionary<string, object>>(props);
-        this.children = new BehaviorSubject<List<IRenderable>>(children);
+        props.Dispose();
     }
 }
 
-public class RawChildlessWidgetNodeWithId
-{
-    public RawChildlessWidgetNodeWithId(int id, WidgetTypes type, Dictionary<string, object> props)
-    {
-        this.id = id;
-        this.type = type;
-        this.props = props;
-    }
+public record WidgetNode(
+    WidgetTypes type,
+    BehaviorSubject<Dictionary<string, object>> props,
+    BehaviorSubject<List<IRenderable>> children
+) : IRenderable;
 
-    public int id { get; set; }
-    public WidgetTypes type { get; set; }
-    public Dictionary<string, object> props { get; set; }
-}
+public record RawChildlessWidgetNodeWithId(
+    int id,
+    WidgetTypes type,
+    Dictionary<string, object> props
+);
+
 
 public static class WidgetNodeFactory
 {
     public static WidgetNode WidgetNode(WidgetTypes widgetType, Dictionary<string, object> props, List<IRenderable> children)
     {
-        return new WidgetNode(widgetType, props, children);
+        return new WidgetNode(widgetType, new BehaviorSubject<Dictionary<string, object>>(props), new BehaviorSubject<List<IRenderable>>(children));
     }
 
     public static RawChildlessWidgetNodeWithId RawChildlessWidgetNodeWithId(int id, WidgetNode node)
