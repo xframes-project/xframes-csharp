@@ -484,6 +484,7 @@ public class BaseDrawStyle
     public List<RoundCorners>? roundCorners { get; set; }
 }
 
+
 public class NodeStyleDef
 {
     public YogaStyle? layout { get; set; }
@@ -588,12 +589,14 @@ public class WidgetStyleDef
     }
 }
 
-
 public class NodeStyle
 {
     public NodeStyleDef? style { get; set; }
+
     public NodeStyleDef? hoverStyle { get; set; }
+
     public NodeStyleDef? activeStyle { get; set; }
+
     public NodeStyleDef? disabledStyle { get; set; }
 }
 

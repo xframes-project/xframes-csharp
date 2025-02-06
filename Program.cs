@@ -1,11 +1,4 @@
 ﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Threading.Tasks;
-
-
 
 
 public struct Theme2
@@ -109,26 +102,14 @@ class Program
 
         Console.WriteLine("Program started.");
 
+        var service = new WidgetRegistrationService();
+        var treeTraversal = new ShadowNodeTraversalHelper(service);
+
         XFrames.OnInitCb onInit = () => {
             Console.WriteLine("Initialization callback called!");
 
-            var rootNode = new Dictionary<string, object>
-            {
-                { "id", 0 },
-                { "type", "node" },
-                { "root", true }
-            };
-
-            var textNode = new Dictionary<string, object>
-            {
-                { "id", 1 },
-                { "type", "unformatted-text" },
-                { "text", "Hello, world!" }
-            };
-
-            XFrames.setElement(JsonConvert.SerializeObject(rootNode));
-            XFrames.setElement(JsonConvert.SerializeObject(textNode));
-            XFrames.setChildren(0, JsonConvert.SerializeObject(new List<int> { 1 }));
+            var root = new Root();
+            treeTraversal.TraverseTree(root);
         };
 
         XFrames.OnTextChangedCb onTextChanged = (int id, string value) => { };

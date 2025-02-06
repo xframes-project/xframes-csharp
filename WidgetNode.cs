@@ -64,53 +64,71 @@ public static class WidgetNodeFactory
         return new RawChildlessWidgetNodeWithId(id, node.type, node.props.Value);
     }
 
-    private static Dictionary<string, object> InitPropsWithStyle(object? style)
+    private static Dictionary<string, object> InitPropsWithStyle(NodeStyle style)
     {
         var props = new Dictionary<string, object>();
 
         if (style != null)
         {
-            var type = style.GetType();
-            if (type.GetProperty("Style")?.GetValue(style) is object styleDef)
-                props["style"] = styleDef;
-            if (type.GetProperty("ActiveStyle")?.GetValue(style) is object activeStyle)
-                props["activeStyle"] = activeStyle;
-            if (type.GetProperty("HoverStyle")?.GetValue(style) is object hoverStyle)
-                props["hoverStyle"] = hoverStyle;
-            if (type.GetProperty("DisabledStyle")?.GetValue(style) is object disabledStyle)
-                props["disabledStyle"] = disabledStyle;
+            if (style.style != null)
+                props["style"] = style.style;
+            if (style.activeStyle != null)
+                props["activeStyle"] = style.activeStyle;
+            if (style.hoverStyle != null)
+                props["hoverStyle"] = style.hoverStyle;
+            if (style.disabledStyle != null)
+                props["disabledStyle"] = style.disabledStyle;
         }
 
         return props;
     }
 
-    public static WidgetNode RootNode(List<IRenderable> children, object? style = null)
+    private static Dictionary<string, object> InitPropsWithStyle(WidgetStyle? style)
+    {
+        var props = new Dictionary<string, object>();
+
+        if (style != null)
+        {
+            if (style.style != null)
+                props["style"] = style.style;
+            if (style.activeStyle != null)
+                props["activeStyle"] = style.activeStyle;
+            if (style.hoverStyle != null)
+                props["hoverStyle"] = style.hoverStyle;
+            if (style.disabledStyle != null)
+                props["disabledStyle"] = style.disabledStyle;
+        }
+
+        return props;
+    }
+
+    public static WidgetNode RootNode(List<IRenderable> children, NodeStyle? style = null)
     {
         var props = InitPropsWithStyle(style);
         props["root"] = true;
         return WidgetNode(WidgetTypes.Node, props, children);
     }
 
-    public static WidgetNode Node(List<IRenderable> children, object? style = null)
+    public static WidgetNode Node(List<IRenderable> children, NodeStyle? style = null)
     {
         var props = InitPropsWithStyle(style);
         props["root"] = false;
         return WidgetNode(WidgetTypes.Node, props, children);
     }
 
-    public static WidgetNode UnformattedText(string text, object? style = null)
+    public static WidgetNode UnformattedText(string text, WidgetStyle? style = null)
     {
         var props = InitPropsWithStyle(style);
         props["text"] = text;
         return WidgetNode(WidgetTypes.UnformattedText, props, new List<IRenderable>());
     }
 
-    public static WidgetNode Button(string label, Action? onClick = null, object? style = null)
+    public static WidgetNode Button(string label, Action? onClick = null, WidgetStyle? style = null)
     {
         var props = InitPropsWithStyle(style);
         props["label"] = label;
         if (onClick != null)
-            props["on_click"] = onClick; // Not serializable, just stored
+            props["on_click"] = onClick;
 
         return WidgetNode(WidgetTypes.Button, props, new List<IRenderable>());
     }
