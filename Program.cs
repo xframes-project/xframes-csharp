@@ -119,7 +119,9 @@ class Program
         XFrames.OnMultipleNumericValuesChangedCb onMultipleNumericValuesChanged = (int id, IntPtr rawValues, int numValues) => {
             float[] values = XFrames.MarshalFloatArray(rawValues, numValues);
         };
-        XFrames.OnClickCb onClick = (int id) => { };
+        XFrames.OnClickCb onClick = (int id) => {
+            service.DispatchOnClickEvent(id);
+        };
 
         XFrames.init("./assets", fontDefsJson, theme2Json, onInit, onTextChanged, onComboChanged, onNumericValueChanged, onBooleanValueChanged, onMultipleNumericValuesChanged, onClick);
 
