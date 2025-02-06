@@ -1,69 +1,4 @@
 ﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Threading.Tasks;
-
-
-
-public enum ImGuiCol
-{
-    Text = 0,
-    TextDisabled = 1,
-    WindowBg = 2,
-    ChildBg = 3,
-    PopupBg = 4,
-    Border = 5,
-    BorderShadow = 6,
-    FrameBg = 7,
-    FrameBgHovered = 8,
-    FrameBgActive = 9,
-    TitleBg = 10,
-    TitleBgActive = 11,
-    TitleBgCollapsed = 12,
-    MenuBarBg = 13,
-    ScrollbarBg = 14,
-    ScrollbarGrab = 15,
-    ScrollbarGrabHovered = 16,
-    ScrollbarGrabActive = 17,
-    CheckMark = 18,
-    SliderGrab = 19,
-    SliderGrabActive = 20,
-    Button = 21,
-    ButtonHovered = 22,
-    ButtonActive = 23,
-    Header = 24,
-    HeaderHovered = 25,
-    HeaderActive = 26,
-    Separator = 27,
-    SeparatorHovered = 28,
-    SeparatorActive = 29,
-    ResizeGrip = 30,
-    ResizeGripHovered = 31,
-    ResizeGripActive = 32,
-    Tab = 33,
-    TabHovered = 34,
-    TabActive = 35,
-    TabUnfocused = 36,
-    TabUnfocusedActive = 37,
-    PlotLines = 38,
-    PlotLinesHovered = 39,
-    PlotHistogram = 40,
-    PlotHistogramHovered = 41,
-    TableHeaderBg = 42,
-    TableBorderStrong = 43,
-    TableBorderLight = 44,
-    TableRowBg = 45,
-    TableRowBgAlt = 46,
-    TextSelectedBg = 47,
-    DragDropTarget = 48,
-    NavHighlight = 49,
-    NavWindowingHighlight = 50,
-    NavWindowingDimBg = 51,
-    ModalWindowDimBg = 52,
-    COUNT = 53
-}
 
 public struct Theme2
 {
@@ -76,83 +11,8 @@ public struct Theme2
 }
 
 
-
 class Program
 {
-    public static float[] MarshalFloatArray(IntPtr ptr, int length)
-    {
-        float[] array = new float[length];
-        Marshal.Copy(ptr, array, 0, length);
-        return array;
-    }
-
-    // Importing the functions from the C DLL
-    [DllImport("xframesshared.dll", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void resizeWindow(int width, int height);
-
-    [DllImport("xframesshared.dll", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void setElement(string elementJson);
-
-    [DllImport("xframesshared.dll", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void patchElement(int id, string elementJson);
-
-    [DllImport("xframesshared.dll", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void elementInternalOp(int id, string elementJson);
-
-    [DllImport("xframesshared.dll", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void setChildren(int id, string childrenIds);
-
-    [DllImport("xframesshared.dll", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void appendChild(int parentId, int childId);
-
-    [DllImport("xframesshared.dll", CallingConvention = CallingConvention.Cdecl)]
-    public static extern IntPtr getChildren(int id);
-
-    [DllImport("xframesshared.dll", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void appendTextToClippedMultiLineTextRenderer(int id, string data);
-
-    [DllImport("xframesshared.dll", CallingConvention = CallingConvention.Cdecl)]
-    public static extern IntPtr getStyle();
-
-    [DllImport("xframesshared.dll", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void patchStyle(string styleDef);
-
-    [DllImport("xframesshared.dll", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void setDebug(bool debug);
-
-    [DllImport("xframesshared.dll", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void showDebugWindow();
-
-    [DllImport("xframesshared.dll", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void init(
-        string assetsBasePath,
-        string rawFontDefinitions,
-        string rawStyleOverrideDefinitions,
-        OnInitCb onInit,
-        OnTextChangedCb onTextChanged,
-        OnComboChangedCb onComboChanged,
-        OnNumericValueChangedCb onNumericValueChanged,
-        OnBooleanValueChangedCb onBooleanValueChanged,
-        OnMultipleNumericValuesChangedCb onMultipleNumericValuesChanged,
-        OnClickCb onClick
-    );
-
-    // Define the delegates for the callback functions
-    public delegate void OnInitCb();
-    public delegate void OnTextChangedCb(int id, string value);
-    public delegate void OnComboChangedCb(int id, int index);
-    public delegate void OnNumericValueChangedCb(int id, float value);
-    public delegate void OnBooleanValueChangedCb(int id, bool value);
-    public delegate void OnMultipleNumericValuesChangedCb(int id, IntPtr values, int numValues);
-    public delegate void OnClickCb(int id);
-
-    public class FontDef
-    {
-        public string name { get; set; }
-        public int size { get; set; }
-    }
-
-    // Example usage
     static async Task Main(string[] args)
     {
         var fontDefs = new
@@ -161,7 +21,7 @@ class Program
             {
                 new { name = "roboto-regular", sizes = new[] { 16, 18, 20, 24, 28, 32, 36, 48 } }
             }
-            .SelectMany(font => font.sizes.Select(size => new FontDef { name = font.name, size = size }))
+            .SelectMany(font => font.sizes.Select(size => new FontDef(font.name, size)))
             .ToList()
         };
 
@@ -241,38 +101,28 @@ class Program
 
         Console.WriteLine("Program started.");
 
-        OnInitCb onInit = () => {
+        var service = new WidgetRegistrationService();
+        var treeTraversal = new ShadowNodeTraversalHelper(service);
+
+        XFrames.OnInitCb onInit = () => {
             Console.WriteLine("Initialization callback called!");
 
-            var rootNode = new Dictionary<string, object>
-            {
-                { "id", 0 },
-                { "type", "node" },
-                { "root", true }
-            };
-
-            var textNode = new Dictionary<string, object>
-            {
-                { "id", 1 },
-                { "type", "unformatted-text" },
-                { "text", "Hello, world!" }
-            };
-
-            setElement(JsonConvert.SerializeObject(rootNode));
-            setElement(JsonConvert.SerializeObject(textNode));
-            setChildren(0, JsonConvert.SerializeObject(new List<int> { 1 }));
+            var root = new Root();
+            treeTraversal.TraverseTree(root);
         };
 
-        OnTextChangedCb onTextChanged = (int id, string value) => { };
-        OnComboChangedCb onComboChanged = (int id, int index) => { };
-        OnNumericValueChangedCb onNumericValueChanged = (int id, float value) => { };
-        OnBooleanValueChangedCb onBooleanValueChanged = (int id, bool value) => { };
-        OnMultipleNumericValuesChangedCb onMultipleNumericValuesChanged = (int id, IntPtr rawValues, int numValues) => {
-            float[] values = MarshalFloatArray(rawValues, numValues);
+        XFrames.OnTextChangedCb onTextChanged = (int id, string value) => { };
+        XFrames.OnComboChangedCb onComboChanged = (int id, int index) => { };
+        XFrames.OnNumericValueChangedCb onNumericValueChanged = (int id, float value) => { };
+        XFrames.OnBooleanValueChangedCb onBooleanValueChanged = (int id, bool value) => { };
+        XFrames.OnMultipleNumericValuesChangedCb onMultipleNumericValuesChanged = (int id, IntPtr rawValues, int numValues) => {
+            float[] values = XFrames.MarshalFloatArray(rawValues, numValues);
         };
-        OnClickCb onClick = (int id) => { };
+        XFrames.OnClickCb onClick = (int id) => {
+            service.DispatchOnClickEvent(id);
+        };
 
-        init("./assets", fontDefsJson, theme2Json, onInit, onTextChanged, onComboChanged, onNumericValueChanged, onBooleanValueChanged, onMultipleNumericValuesChanged, onClick);
+        XFrames.init("./assets", fontDefsJson, theme2Json, onInit, onTextChanged, onComboChanged, onNumericValueChanged, onBooleanValueChanged, onMultipleNumericValuesChanged, onClick);
 
         // Start the background task that will keep the process running
         await KeepProcessRunning();
